@@ -1,0 +1,11 @@
+*~
+*.pyc
+*.db
+*.orig
+*,cover
+venv
+venv3
+tmp
+__pycache__
+htmlcov
+.coverage

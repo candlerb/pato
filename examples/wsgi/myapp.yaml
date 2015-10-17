@@ -1,0 +1,15 @@
+db/engine:
+  :: pato.sqla.create_engine
+  =: sqlite:///test.db
+  #=: mysql+pymysql://root@localhost/testdb
+  echo: True
+
+db/session_factory:
+  :: sqlalchemy.orm.sessionmaker
+  bind: <db/engine>
+
+app:
+  :: myapp.DBMiddleware
+  session_factory: <db/session_factory>
+  app:
+    :: myapp.SimpleApp

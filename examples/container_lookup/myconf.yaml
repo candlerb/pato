@@ -1,0 +1,5 @@
+dynamic/object:
+  :: myapp.Dynamic
+  container: <pato/container>
+dynamic/username: abc
+dynamic/password: xyzzy

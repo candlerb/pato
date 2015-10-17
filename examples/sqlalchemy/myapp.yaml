@@ -1,0 +1,19 @@
+db/engine:
+  :: pato.sqla.create_engine
+  =: sqlite:///test.db
+  #=: mysql+pymysql://root@localhost/testdb
+  echo: True
+
+db/manager:
+  :: pato.sqla.SessionManager
+  engine: <db/engine>
+
+myapp/setup:
+  :: myapp.Setup
+
+myapp/foo:
+  :: myapp.Foo
+  other_service: <myapp/bar>
+
+myapp/bar:
+  :: myapp.Bar
