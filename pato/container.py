@@ -14,9 +14,7 @@ def import_name(name):
         except ImportError:
             modname, _, nattr = modname.rpartition(".")
             attrs.insert(0, nattr)
-    for attr in attrs:
-        module = getattr(module, attr)
-    return module
+    return reduce(getattr, attrs, module)
 
 def raise_and_annotate(err, message):
     """
