@@ -178,8 +178,15 @@ a:
 b:
     :: getattr
     =: [<a>, creds]
+c:
+    :: libtest.sample.Bar
+    x: 100
+    y: 200
+d:
+    <c>.x
 """)
     assert c['b'] == "abc:xyz"
+    assert c['d'] == 100
 
 def test_import_name(c):
     c.load_yaml("""

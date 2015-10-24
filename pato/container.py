@@ -171,8 +171,11 @@ class Container(object):
         if isinstance(value, six.string_types):
             if value[0:2] == "<<":
                 return value[1:]
-            if value[0:1] == "<" and value[-1:] == ">":
-                return self._resolve_service(value[1:-1])
+            if value[0:1] == "<" and ">" in value:
+                service_name, _, attrs = value[1:].rpartition(">")
+                service = self._resolve_service(service_name)
+                attrs = [a for a in attrs.split('.') if a]
+                return reduce(getattr, attrs, service)
 
         elif isinstance(value, dict):
             if self.factory_key in value:
