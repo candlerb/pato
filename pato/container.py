@@ -14,7 +14,7 @@ def import_name(name):
         except ImportError:
             modname, _, nattr = modname.rpartition(".")
             attrs.insert(0, nattr)
-    return reduce(getattr, attrs, module)
+    return six.moves.reduce(getattr, attrs, module)
 
 def raise_and_annotate(err, message):
     """
@@ -175,7 +175,7 @@ class Container(object):
                 service_name, _, attrs = value[1:].rpartition(">")
                 service = self._resolve_service(service_name)
                 attrs = [a for a in attrs.split('.') if a]
-                return reduce(getattr, attrs, service)
+                return six.moves.reduce(getattr, attrs, service)
 
         elif isinstance(value, dict):
             if self.factory_key in value:
