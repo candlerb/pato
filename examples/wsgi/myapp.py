@@ -3,6 +3,10 @@
 # See http://python-future.org/unicode_literals.html
 
 class DBMiddleware(object):
+    """
+    A sample middleware for creating and closing a sqlalchemy session.
+    This could be done more simply using pato.sqla.SessionManager
+    """
     def __init__(self, session_factory, app):
         self.session_factory = session_factory
         self.app = app
