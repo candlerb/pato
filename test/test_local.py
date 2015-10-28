@@ -1,5 +1,5 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-from pato.local import setattrs, local_factory, ctx
+from pato.local import setattrs, local_factory, ctx, get_ctx
 from pytest import raises
 
 class AnyObject(object):
@@ -35,6 +35,7 @@ def test_setattrs_ctx():
     """
     There is a shared ctx object which is the default target
     """
+    ctx = get_ctx()
     assert not hasattr(ctx, 'a')
     assert not hasattr(ctx, 'b')
     with setattrs(a='hello', b='world'):

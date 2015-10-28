@@ -6,12 +6,10 @@ implementation see `flask.globals` which in turn uses `werkzeug.local`
 from __future__ import absolute_import, division, print_function, unicode_literals
 from contextlib import contextmanager
 
-SENTINEL = object()
-
 def local_factory():
     """
-    Return a context object on which attributes can be set; these will
-    will be distinct for each thread or greenlet.
+    Return a new thread-local object on which attributes can be set; these will
+    will be distinct for each thread or greenlet (latter requires werkzeug).
     """
     try:
         import werkzeug.local
@@ -22,16 +20,27 @@ def local_factory():
 
 ctx = local_factory()
 
+def get_ctx():
+    """
+    A factory-like function which always returns the singleton ctx object
+    """
+    return ctx
+
+SENTINEL = object()
+
 @contextmanager
 def setattrs(local=ctx, **overrides):
     """
     A context manager for setting attribtues for the duration of a
     request, and removing them afterwards.  Supports recursive use.
 
-    local = local_factory()
+    local = Bunch()
     ...
     with setattrs(local, db_session=X, workflow_id=Y):
         ... do stuff
+
+    If the local object is not specified, uses the global
+    thread-local ctx object.
     """
     prev = {}
     for key in overrides:
