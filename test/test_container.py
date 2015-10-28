@@ -1,13 +1,9 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 from pato.container import Container
-from pytest import fixture, raises
+from pytest import raises
 import libtest.sample
 from six.moves.queue import Queue
 from threading import Thread
-
-@fixture
-def c():
-    return Container()
 
 def test_simple_values(c):
     c.load_yaml("""
