@@ -96,9 +96,10 @@ class Container(object):
 
     def load_dict(self, data):
         """Import a dict of {service: definition}"""
-        self.definitions.update(data)
-        for key in data:
-            self.services.pop(key, None)
+        if data:   # allow for empty YAML files
+            self.definitions.update(data)
+            for key in data:
+                self.services.pop(key, None)
 
     def expire(self):
         """

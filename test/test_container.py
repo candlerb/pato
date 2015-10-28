@@ -17,6 +17,12 @@ d: null
     assert c['c'] == 123
     assert c['d'] is None
 
+def test_empty(c):
+    c.load_yaml("""
+# Nothing to see here
+""")
+    # assert nothing raised
+
 def test_service_alias(c):
     c.load_yaml("""
 a: ""
