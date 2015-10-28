@@ -4,7 +4,7 @@ Utilities for using pato with SQLAlchemy
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 from contextlib import contextmanager
-from pato.local import ctx
+from pato.local import get_ctx
 from sqlalchemy import event, create_engine as real_create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -32,21 +32,21 @@ def create_engine(*args, **kwargs):
     return engine
 
 class SessionManager(object):
-    def __init__(self, engine, session_factory=None, local=ctx, attribute_name="db"):
+    def __init__(self, engine, session_factory=None, ctx_factory=get_ctx, attribute_name="db"):
         self.engine = engine
         self.session_factory = session_factory or sessionmaker(bind=engine)
-        self.local = local
+        self.ctx_factory = ctx_factory
         self.attribute_name = attribute_name
 
     @contextmanager
-    def __call__(self, local=None, force_new=False):
+    def __call__(self, ctx=None, force_new=False):
         """
         A context manager which creates a database session. Afterwards it
         either commits or rolls back the session and closes it. The session
-        value is yielded and also added to the local object for the
+        value is yielded and also added to the ctx object for the
         duration of the call.
 
-        If there is already a session in the local object then this is
+        If there is already a session in the ctx object then this is
         used instead of creating a new session, unless force_new is True.
         This allows recursive use.
 
@@ -55,13 +55,13 @@ class SessionManager(object):
         with sessionmgr() as session:
             ... do stuff with session
         """
-        if not local: local = self.local
-        old_session = getattr(local, self.attribute_name, SENTINEL)
+        if not ctx: ctx = self.ctx_factory()
+        old_session = getattr(ctx, self.attribute_name, SENTINEL)
         if old_session is not SENTINEL and old_session is not None and not force_new:
             yield old_session
         else:
             session = self.session_factory()
-            setattr(local, self.attribute_name, session)
+            setattr(ctx, self.attribute_name, session)
             try:
                 yield session
                 session.commit()
@@ -71,14 +71,14 @@ class SessionManager(object):
             finally:
                 session.close()
                 if old_session is SENTINEL:
-                    delattr(local, self.attribute_name)
+                    delattr(ctx, self.attribute_name)
                 else:
-                    setattr(local, self.attribute_name, old_session)
+                    setattr(ctx, self.attribute_name, old_session)
 
     def invoke(self, service, *args, **kwargs):
         """
         Invoke a single function, ensuring that a database session has been
-        created in the local object, and finishing up afterwards.
+        created in the ctx object, and finishing up afterwards.
 
         sessionmgr = SessionManager(engine)
         ...
@@ -101,15 +101,15 @@ class TestSessionManager(SessionManager):
     """
 
     @contextmanager
-    def __call__(self, local=None, force_new=False):
+    def __call__(self, ctx=None, force_new=False):
         """
         There is deep magic here to allow our session to commit/rollback
         inside a single transaction, which we can roll back at the very end. See
         http://docs.sqlalchemy.org/en/rel_1_0/orm/session_transaction.html#joining-a-session-into-an-external-transaction-such-as-
         including "supporting tests with rollbacks"
         """
-        if not local: local = self.local
-        old_session = getattr(local, self.attribute_name, SENTINEL)
+        if not ctx: ctx = self.ctx_factory()
+        old_session = getattr(ctx, self.attribute_name, SENTINEL)
         if old_session is not SENTINEL and old_session is not None and not force_new:
             yield old_session
         else:
@@ -122,7 +122,7 @@ class TestSessionManager(SessionManager):
                 if transaction.nested and not transaction._parent.nested:
                     session.expire_all()
                     session.begin_nested()
-            setattr(local, self.attribute_name, session)
+            setattr(ctx, self.attribute_name, session)
             try:
                 yield session
             finally:
@@ -130,6 +130,6 @@ class TestSessionManager(SessionManager):
                 trans.rollback()
                 conn.close()
                 if old_session is SENTINEL:
-                    delattr(local, self.attribute_name)
+                    delattr(ctx, self.attribute_name)
                 else:
-                    setattr(local, self.attribute_name, old_session)
+                    setattr(ctx, self.attribute_name, old_session)
