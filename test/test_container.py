@@ -138,38 +138,38 @@ b:
     assert b2 is not b3
 
 def test_alternate_key():
-    c = Container(factory_key="pato/factory")
+    c = Container(factory_key="class")
     c.load_yaml("""
 a:
-    pato/factory: libtest.sample.Foo
+    class: libtest.sample.Foo
     username: abc
     password: xyz
 """)
     assert c['a'].creds == "abc:xyz"
 
-def test_splat_args(c):
+def test_list_args(c):
+    c['my_factory'] = libtest.sample.Foo
     c.load_yaml("""
 a:
-    # all splat args
-    :: libtest.sample.Foo
-    =: [abc, def]
+    # all list args
+    :: [libtest.sample.Foo, abc, def]
 b:
-    # mixture of splat and kwargs; single-element list
-    :: libtest.sample.Foo
-    =: ghi
+    # mixture of list and kwargs
+    :: [libtest.sample.Foo, ghi]
     password: jkl
 c:
-    # indirect list
-    :: libtest.sample.Foo
-    =: <creds>
-creds:
-  - mno
-  - pqr
+    # indirect list elements
+    :: [libtest.sample.Foo, <username>, <password>]
+username: mno
+password: pqr
+d:
+    :: [<my_factory>, "stu", "vwx"]
 """)
     assert isinstance(c['a'], libtest.sample.Foo)
     assert c['a'].creds == "abc:def"
     assert c['b'].creds == "ghi:jkl"
     assert c['c'].creds == "mno:pqr"
+    assert c['d'].creds == "stu:vwx"
 
 def test_resolve_builtin(c):
     c.load_yaml("""
@@ -178,8 +178,7 @@ a:
     username: abc
     password: xyz
 b:
-    :: getattr
-    =: [<a>, creds]
+    :: [getattr, <a>, creds]
 c:
     :: libtest.sample.Bar
     x: 100
@@ -193,11 +192,9 @@ d:
 def test_import_name(c):
     c.load_yaml("""
 a:
-    :: pato.container.import_name
-    =: libtest.sample
+    :: [pato.container.import_name, libtest.sample]
 b:
-    :: pato.container.import_name
-    =: libtest.sample.adder
+    :: [pato.container.import_name, libtest.sample.adder]
 """)
     assert c['a'] is libtest.sample
     assert c['b'] is libtest.sample.adder
@@ -205,7 +202,8 @@ b:
 def test_service_as_factory(c):
     c['my_factory'] = libtest.sample.Foo
     c.load_yaml("""
-factory2: <my_factory>
+factory2:
+    :: [pato.container.import_name, libtest.sample.Foo]
 a:
     :: <my_factory>
     username: abc

@@ -1,7 +1,8 @@
 db/engine:
-  :: pato.sqla.create_engine
-  =: sqlite:///test.db
-  #=: mysql+pymysql://root@localhost/testdb
+  ::
+    - pato.sqla.create_engine
+    - sqlite:///test.db
+    #- mysql+pymysql://root@localhost/testdb
   echo: True
 
 db/session_factory:

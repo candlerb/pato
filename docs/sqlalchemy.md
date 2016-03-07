@@ -20,8 +20,7 @@ The sqlalchemy `sessionmaker` function can create a session for you.
 
 ~~~
 db/engine:
-  :: pato.sqla.create_engine
-  =: sqlite:///test.db
+  :: [pato.sqla.create_engine, sqlite:///test.db]
   echo: True
 
 db/session_factory:
@@ -348,8 +347,7 @@ from the same thread will get a fresh session.
 
 ~~~
 db/engine:
-  :: pato.sqla.create_engine
-  =: sqlite:///test.db
+  :: [pato.sqla.create_engine, sqlite:///test.db]
   echo: True
 
 db/session_factory:

@@ -72,11 +72,10 @@ class Container(object):
     <https://gist.github.com/blairanderson/8072d951a480a590f0bd>
     """
 
-    def __init__(self, factory_key=":", splat_key="="):
+    def __init__(self, factory_key=":"):
         self.definitions = {}    # {service name: configuration}
         self.services = {}       # {service name: constructed object}
         self.factory_key = factory_key
-        self.splat_key = splat_key
         self.lock = threading.RLock()   # for thread-safety
         self.building = set()           # for loop detection
 
@@ -180,15 +179,14 @@ class Container(object):
 
         elif isinstance(value, dict):
             if self.factory_key in value:
-                factory = self._resolve_value(value[self.factory_key])
+                factory, args = self._resolve_value(value[self.factory_key]), []
+                if isinstance(factory, list):
+                    factory, args = factory[0], factory[1:]
                 if isinstance(factory, six.string_types):
                     factory = import_name(factory)
-                args, kwargs = ([], {})
+                kwargs = {}
                 for (dict_key, dict_value) in six.iteritems(value):
-                    if dict_key == self.splat_key:
-                        args = self._resolve_value(dict_value)
-                        if not isinstance(args, list): args = [args]
-                    elif dict_key != self.factory_key:
+                    if dict_key != self.factory_key:
                         kwargs[dict_key] = self._resolve_value(dict_value)
                 try:
                     return factory(*args, **kwargs)

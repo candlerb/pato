@@ -64,13 +64,23 @@ with the given keyword arguments `name_or_url` and `echo`.
 Accessing `c['database']` will return this object, hence the
 **Service Locator** pattern.
 
-If you need to pass a list of unnamed arguments, the special key '=' can be
-used for this.  Provide either a single value or a list.
+If you need to pass a list of unnamed arguments, pass a list for the `::` key.
+This can be combined with keyword arguments if you wish as well.
 
 ~~~
 database:
-  :: sqlalchemy.create_engine
-  =: sqlite:///test.db
+  :: [sqlalchemy.create_engine, sqlite:///test.db]
+  echo: True
+~~~
+
+or:
+
+~~~
+database:
+  ::
+    - sqlalchemy.create_engine
+    - sqlite:///test.db
+  echo: True
 ~~~
 
 ## Dependency injection

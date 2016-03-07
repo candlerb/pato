@@ -16,7 +16,7 @@ f:
     t = 1000
     monkeypatch.setattr(pato.vivify.time, 'time', lambda: t)
     f = c["f"]
-    
+
     o1 = f()
     o2 = f()
     assert o2 is o1
