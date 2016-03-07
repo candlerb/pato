@@ -69,7 +69,7 @@ This can be combined with keyword arguments if you wish as well.
 
 ~~~
 database:
-  :: [sqlalchemy.create_engine, sqlite:///test.db]
+  :: [sqlalchemy.create_engine, "sqlite:///test.db"]
   echo: True
 ~~~
 
