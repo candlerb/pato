@@ -4,4 +4,4 @@
 #
 # Pass flag -s if you want to see stdout/stderr generated during the test
 #
-py.test test "$@"
+py.test --ignore venv --ignore venv3 "$@"
