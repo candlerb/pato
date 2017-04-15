@@ -105,8 +105,8 @@ class TestSessionManager(SessionManager):
         """
         There is deep magic here to allow our session to commit/rollback
         inside a single transaction, which we can roll back at the very end. See
-        http://docs.sqlalchemy.org/en/rel_1_0/orm/session_transaction.html#joining-a-session-into-an-external-transaction-such-as-
-        including "supporting tests with rollbacks"
+        http://docs.sqlalchemy.org/en/rel_1_1/orm/session_transaction.html#session-external-transaction
+        and in particular the section "Supporting Tests with Rollbacks"
         """
         if not ctx: ctx = self.ctx_factory()
         old_session = getattr(ctx, self.attribute_name, SENTINEL)
